@@ -2,7 +2,7 @@
 
 Put any image under your Xaero's World Map: an old map, a server map, a highway chart, whatever. Your own explored map draws on top, and the image fills in everywhere else.
 
-Unofficial addon. You need Fabric, Fabric API and Xaero's World Map 1.45+ for Minecraft 1.21.11.
+Unofficial addon. You need Fabric, Fabric API and Xaero's World Map 1.46.1+ for Minecraft 26.2.
 
 ## How to use
 
@@ -18,6 +18,6 @@ Images of any size work, even one block per pixel across tens of thousands of bl
 
 ## Building
 
-`./gradlew build` on JDK 21. See `libs/README.md` for the Xaero jar the build needs.
+`./gradlew build` on JDK 25. See `libs/README.md` for the Xaero jar the build needs.
 
 MIT licence.

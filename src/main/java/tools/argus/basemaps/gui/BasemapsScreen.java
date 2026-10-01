@@ -1,12 +1,12 @@
 package tools.argus.basemaps.gui;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import tools.argus.basemaps.BasemapEntry;
 import tools.argus.basemaps.BasemapManager;
@@ -48,7 +48,7 @@ public final class BasemapsScreen extends Screen {
     private record Line(String text, int color) { }
 
     public BasemapsScreen(Screen parent) {
-        super(Text.literal("Xaero's Base Map"));
+        super(Component.literal("Xaero's Base Map"));
         this.parent = parent;
     }
 
@@ -77,47 +77,47 @@ public final class BasemapsScreen extends Screen {
         for (int i = 0; i < rows && listOffset + i < entries.size(); i++) {
             BasemapEntry e = entries.get(listOffset + i);
             String name = (e.settings.enabled ? "● " : "○ ") + (e.isPack() ? "[pack] " : "") + e.name;
-            ButtonWidget b = ButtonWidget.builder(Text.literal(textRenderer.trimToWidth(name, listW - 10)), btn -> select(e))
-                .dimensions(listX, TOP + i * 22, listW, 20).build();
+            Button b = Button.builder(Component.literal(font.plainSubstrByWidth(name, listW - 10)), btn -> select(e))
+                .bounds(listX, TOP + i * 22, listW, 20).build();
             b.active = e != selected;
-            addDrawableChild(b);
+            addRenderableWidget(b);
         }
         if (entries.size() > rows) {
             int half = (listW - 4) / 2, y = TOP + rows * 22;
-            ButtonWidget up = ButtonWidget.builder(Text.literal("▲"), b -> { listOffset = Math.max(0, listOffset - rows); clearAndInit(); })
-                .dimensions(listX, y, half, 20).build();
-            ButtonWidget down = ButtonWidget.builder(Text.literal("▼"), b -> { listOffset += rows; clearAndInit(); })
-                .dimensions(listX + half + 4, y, half, 20).build();
+            Button up = Button.builder(Component.literal("▲"), b -> { listOffset = Math.max(0, listOffset - rows); rebuildWidgets(); })
+                .bounds(listX, y, half, 20).build();
+            Button down = Button.builder(Component.literal("▼"), b -> { listOffset += rows; rebuildWidgets(); })
+                .bounds(listX + half + 4, y, half, 20).build();
             up.active = listOffset > 0;
             down.active = listOffset + rows < entries.size();
-            addDrawableChild(up);
-            addDrawableChild(down);
+            addRenderableWidget(up);
+            addRenderableWidget(down);
         }
 
         if (selected != null) initEditor(selected);
 
         int bw = Math.min(100, (width - 2 * MARGIN - 8) / 3), bx = width / 2 - (3 * bw + 8) / 2;
-        addDrawableChild(ButtonWidget.builder(Text.literal("Open folder"), b -> {
-            if (manager.dir() != null) Util.getOperatingSystem().open(manager.dir());
-        }).dimensions(bx, buttonsY, bw, 20).build());
-        addDrawableChild(ButtonWidget.builder(Text.literal("Reload"), b -> {
+        addRenderableWidget(Button.builder(Component.literal("Open folder"), b -> {
+            if (manager.dir() != null) Util.getPlatform().openPath(manager.dir());
+        }).bounds(bx, buttonsY, bw, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Reload"), b -> {
             saveIfDirty();
             manager.reloadAll();
-            clearAndInit();
-        }).dimensions(bx + bw + 4, buttonsY, bw, 20).build());
-        addDrawableChild(ButtonWidget.builder(Text.literal("Done"), b -> close())
-            .dimensions(bx + 2 * (bw + 4), buttonsY, bw, 20).build());
+            rebuildWidgets();
+        }).bounds(bx + bw + 4, buttonsY, bw, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
+            .bounds(bx + 2 * (bw + 4), buttonsY, bw, 20).build());
     }
 
     private void initEditor(BasemapEntry e) {
         ImageSettings s = e.settings;
         int y = TOP;
 
-        addDrawableChild(CyclingButtonWidget.onOffBuilder(s.enabled)
-            .build(editorX, y, editorW, 20, Text.literal("Show on map"), (btn, value) -> {
+        addRenderableWidget(CycleButton.onOffBuilder(s.enabled)
+            .create(editorX, y, editorW, 20, Component.literal("Show on map"), (btn, value) -> {
                 s.enabled = value;
                 manager.settingsChanged(e);
-                clearAndInit();
+                rebuildWidgets();
             }));
         y += ROW;
 
@@ -135,19 +135,19 @@ public final class BasemapsScreen extends Screen {
             y += ROW;
         }
 
-        addDrawableChild(new OpacitySlider(editorX, y, editorW, 20, s));
+        addRenderableWidget(new OpacitySlider(editorX, y, editorW, 20, s));
         y += ROW;
 
         int half = (editorW - 4) / 2;
-        addDrawableChild(CyclingButtonWidget.<MapDimension>builder(d -> Text.literal(d.displayName), s.dimension)
-            .values(MapDimension.values())
-            .build(editorX, y, half, 20, Text.literal("Dim"), (btn, value) -> {
+        addRenderableWidget(CycleButton.<MapDimension>builder(d -> Component.literal(d.displayName), s.dimension)
+            .withValues(MapDimension.values())
+            .create(editorX, y, half, 20, Component.literal("Dim"), (btn, value) -> {
                 s.dimension = value;
                 manager.settingsChanged(e);
             }));
-        addDrawableChild(CyclingButtonWidget.<DrawMode>builder(m -> Text.literal(m.displayName), s.mode)
-            .values(DrawMode.values())
-            .build(editorX + half + 4, y, editorW - half - 4, 20, Text.literal("Draw"), (btn, value) -> {
+        addRenderableWidget(CycleButton.<DrawMode>builder(m -> Component.literal(m.displayName), s.mode)
+            .withValues(DrawMode.values())
+            .create(editorX + half + 4, y, editorW - half - 4, 20, Component.literal("Draw"), (btn, value) -> {
                 s.mode = value;
                 manager.settingsChanged(e);
             }));
@@ -157,26 +157,26 @@ public final class BasemapsScreen extends Screen {
 
     private void numberField(String label, int y, double value, Function<String, OptionalDouble> parser, DoubleConsumer apply) {
         labels.add(new Label(label, editorX, y + 6));
-        TextFieldWidget field = new TextFieldWidget(textRenderer, editorX + labelW, y, editorW - labelW, 20, Text.literal(label));
+        EditBox field = new EditBox(font, editorX + labelW, y, editorW - labelW, 20, Component.literal(label));
         field.setMaxLength(24);
-        field.setText(ImageSettings.format(value));
-        field.setChangedListener(text -> {
+        field.setValue(ImageSettings.format(value));
+        field.setResponder(text -> {
             OptionalDouble v = parser.apply(text);
             if (v.isPresent()) {
-                field.setEditableColor(FIELD_OK);
+                field.setTextColor(FIELD_OK);
                 apply.accept(v.getAsDouble());
                 dirty = true;
             } else {
-                field.setEditableColor(RED);   // rejected: keep the last valid value
+                field.setTextColor(RED);   // rejected: keep the last valid value
             }
         });
-        addDrawableChild(field);
+        addRenderableWidget(field);
     }
 
     private void select(BasemapEntry e) {
         saveIfDirty();
         lastSelected = e.name;
-        clearAndInit();
+        rebuildWidgets();
     }
 
     private void saveIfDirty() {
@@ -187,21 +187,21 @@ public final class BasemapsScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(textRenderer, title, width / 2, 9, WHITE);
-        for (Label l : labels) context.drawTextWithShadow(textRenderer, l.text, l.x, l.y, WHITE);
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(context, mouseX, mouseY, delta);
+        context.centeredText(font, title, width / 2, 9, WHITE);
+        for (Label l : labels) context.text(font, l.text, l.x, l.y, WHITE, true);
 
         if (manager.entries().isEmpty()) {
             int x = listX, y = TOP;
-            context.drawTextWithShadow(textRenderer, "Nothing here yet.", x, y, WHITE);
+            context.text(font, "Nothing here yet.", x, y, WHITE, true);
             y += 12;
             for (String line : new String[] {
                 "Put .png / .jpg images, tile-pack folders or tile-pack .zip files in the basemaps folder",
                 "(\"Open folder\" below), then press Reload.",
                 "Folder: " + (manager.dir() == null ? "?" : manager.dir().toAbsolutePath())}) {
-                for (var part : textRenderer.wrapLines(Text.literal(line), width - 2 * MARGIN)) {
-                    context.drawTextWithShadow(textRenderer, part, x, y, GREY);
+                for (var part : font.split(Component.literal(line), width - 2 * MARGIN)) {
+                    context.text(font, part, x, y, GREY, true);
                     y += 10;
                 }
             }
@@ -211,13 +211,13 @@ public final class BasemapsScreen extends Screen {
 
         String mem = String.format(Locale.ROOT, "Textures: %d / %d MB (%d tiles)", manager.textureBytes() >> 20,
             manager.config().textureBudgetMB, manager.textureTiles());
-        context.drawTextWithShadow(textRenderer, mem, MARGIN, height - 48, GREY);
+        context.text(font, mem, MARGIN, height - 48, GREY, true);
         String hook = manager.hookSeen() ? "Xaero map hook: active" : "Xaero map hook: not called yet - open the world map";
-        context.drawTextWithShadow(textRenderer, textRenderer.trimToWidth(hook, width - 2 * MARGIN), MARGIN, height - 38,
-            manager.hookSeen() ? GREEN : YELLOW);
+        context.text(font, font.plainSubstrByWidth(hook, width - 2 * MARGIN), MARGIN, height - 38,
+            manager.hookSeen() ? GREEN : YELLOW, true);
     }
 
-    private void renderInfo(DrawContext context, BasemapEntry e) {
+    private void renderInfo(GuiGraphicsExtractor context, BasemapEntry e) {
         ImageSettings s = e.settings;
         List<Line> lines = new ArrayList<>();
         lines.add(new Line(e.name, WHITE));
@@ -250,9 +250,9 @@ public final class BasemapsScreen extends Screen {
         }
         int y = infoY;
         for (Line l : lines) {
-            for (var part : textRenderer.wrapLines(Text.literal(l.text), editorW)) {
+            for (var part : font.split(Component.literal(l.text), editorW)) {
                 if (y > height - 60) return;
-                context.drawTextWithShadow(textRenderer, part, editorX, y, l.color);
+                context.text(font, part, editorX, y, l.color, true);
                 y += 10;
             }
         }
@@ -269,23 +269,23 @@ public final class BasemapsScreen extends Screen {
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         saveIfDirty();
-        if (client != null) client.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
-    private final class OpacitySlider extends SliderWidget {
+    private final class OpacitySlider extends AbstractSliderButton {
         private final ImageSettings settings;
 
         OpacitySlider(int x, int y, int w, int h, ImageSettings settings) {
-            super(x, y, w, h, Text.empty(), settings.opacity / 100.0);
+            super(x, y, w, h, Component.empty(), settings.opacity / 100.0);
             this.settings = settings;
             updateMessage();
         }
 
         @Override
         protected void updateMessage() {
-            setMessage(Text.literal("Opacity: " + (int) Math.round(value * 100) + "%"));
+            setMessage(Component.literal("Opacity: " + (int) Math.round(value * 100) + "%"));
         }
 
         @Override

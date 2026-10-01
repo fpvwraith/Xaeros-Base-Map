@@ -5,5 +5,5 @@ run/
 *.iml
 .idea/
 .vscode/
-# third-party jars (Xaero's World Map, remapped to Yarn) are not ours to redistribute - see libs/README.md
-libs/*.jar
+# third-party jars (Xaero's World Map) are not ours to redistribute - see libs/README.md
+libs/**/*.jar

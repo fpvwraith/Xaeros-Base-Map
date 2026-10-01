@@ -14,15 +14,13 @@ repositories {
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(variantOf(libs.yarn) { classifier("v2") })
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
 
-    // Xaero's World Map: compile-only, against a copy of the jar pre-remapped to Yarn (libs/). Plain
-    // compileOnly rather than modCompileOnly for the same reason as Basilisk: Loom refuses to process some
-    // Xaero-family jars built with a newer Loom, and a pre-remapped copy sidesteps that entirely. Nothing
-    // from it is bundled; the real mod is required at runtime (fabric.mod.json "depends").
-    file("libs").listFiles { f -> f.name.endsWith(".jar") }?.forEach { compileOnly(files(it)) }
+    // Xaero's World Map for 26.2: compile-only, the official jar as-is (26.x is unobfuscated, so Xaero's jar
+    // already uses the same Mojang names as this build; no remapping). Nothing from it is bundled; the real mod
+    // is required at runtime (fabric.mod.json "depends"). See libs/README.md.
+    file("libs/xaero-26.2").listFiles { f -> f.name.endsWith(".jar") }?.forEach { compileOnly(files(it)) }
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -30,8 +28,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks {
@@ -48,7 +46,7 @@ tasks {
 
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
-        options.release.set(21)
+        options.release.set(25)
         options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
     }
 

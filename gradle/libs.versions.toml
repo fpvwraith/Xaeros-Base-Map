@@ -1,18 +1,16 @@
 [versions]
-mod-version = "1.1.2+1.21.11"
+mod-version = "1.1.2+26.2"
 
-# Same toolchain as Basilisk (E:\PrismLauncher\instances\TEsting\Basilisk-bep)
-minecraft = "1.21.11"
-yarn = "1.21.11+build.3"
-fabric-loader = "0.19.3"
-fabric-api = "0.141.6+1.21.11"
-# Loom 1.14 line (1.16+ drops the `mappings` / `modImplementation` DSL used below)
-loom = "1.14.10"
+# Minecraft 26.x ships unobfuscated: no Yarn, no intermediary, Mojang names at compile time and at runtime.
+minecraft = "26.2"
+fabric-loader = "0.19.5"
+fabric-api = "0.161.0+26.2"
+# Loom 1.17 line (the one Fabric names for 26.2), "net.fabricmc.fabric-loom" = the no-remap plugin
+loom = "1.17.21"
 junit = "5.10.2"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
-yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -20,4 +18,4 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 [plugins]
-fabric-loom = { id = "fabric-loom", version.ref = "loom" }
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "loom" }

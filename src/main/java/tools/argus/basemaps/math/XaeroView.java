@@ -1,7 +1,7 @@
 package tools.argus.basemaps.math;
 
 /**
- * Re-derives the numbers Xaero's World Map 1.45 uses inside {@code GuiMap.render} (method_25394) while it draws
+ * Re-derives the numbers Xaero's World Map 1.46 uses inside {@code GuiMap.extractRenderState} while it draws
  * map tiles into its primary framebuffer, so our quads land in exactly the same space. Pure math.
  *
  * <p>In that pass Xaero draws every region texture at local position

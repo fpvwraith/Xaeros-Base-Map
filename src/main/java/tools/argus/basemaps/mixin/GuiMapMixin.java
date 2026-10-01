@@ -1,7 +1,7 @@
 package tools.argus.basemaps.mixin;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,9 +14,9 @@ import xaero.map.WorldMap;
 import xaero.map.gui.GuiMap;
 
 /**
- * Hooks Xaero's World Map screen (xaero.map.gui.GuiMap, WM 1.45). Its render method is the Screen.render
- * override, which keeps its intermediary name {@code method_25394} in both the Yarn-remapped compile jar and at
- * runtime, so it is targeted by that literal name with {@code remap = false}.
+ * Hooks Xaero's World Map screen (xaero.map.gui.GuiMap, WM 1.46 for 26.2). Minecraft 26.x is unobfuscated, so
+ * the render method is targeted by its plain Mojang name, {@code extractRenderState} (26.2's name for
+ * Screen.render).
  *
  * <p>Inside that method Xaero binds its primary map framebuffer, fills the region loop with textured quads, then
  * flushes them. We inject at two single-occurrence points in that pass:
@@ -35,25 +35,25 @@ public abstract class GuiMapMixin {
     @Shadow private double cameraX;
     @Shadow private double cameraZ;
     @Shadow private double scale;
-    @Shadow private RegistryKey<World> lastViewedDimensionId;
+    @Shadow private ResourceKey<Level> lastViewedDimensionId;
 
-    @Inject(method = "method_25394", require = 0,
+    @Inject(method = "extractRenderState", require = 0,
         at = @At(value = "INVOKE", target = "Lxaero/lib/client/graphics/shader/WorldMapShaderHelper;setBrightness(F)V"))
     private void basemaps$drawUnder(CallbackInfo ci) {
         basemaps$draw(DrawMode.UNDER);
     }
 
-    @Inject(method = "method_25394", require = 0,
+    @Inject(method = "extractRenderState", require = 0,
         at = @At(value = "FIELD", target = "Lxaero/map/gui/GuiMap;prevLoadingLeaves:Z", opcode = Opcodes.PUTFIELD))
     private void basemaps$drawOver(CallbackInfo ci) {
         basemaps$draw(DrawMode.OVER);
     }
 
     private void basemaps$draw(DrawMode pass) {
-        RegistryKey<World> dim = lastViewedDimensionId;
+        ResourceKey<Level> dim = lastViewedDimensionId;
         if (dim == null || WorldMap.worldMapClientOnly == null) return;
         BasemapManager.INSTANCE.drawPass(pass,
-            WorldMap.worldMapClientOnly.getMapScreenPoseStack().peek().getPositionMatrix(),
-            cameraX, cameraZ, scale, dim.getValue().toString());
+            WorldMap.worldMapClientOnly.getMapScreenPoseStack().last().pose(),
+            cameraX, cameraZ, scale, dim.identifier().toString());
     }
 }

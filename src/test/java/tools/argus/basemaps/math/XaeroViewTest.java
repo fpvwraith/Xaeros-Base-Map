@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Checks our copy of Xaero's GuiMap math. The formulas were read from the decompiled WM 1.45 GuiMap.render; these
- * tests pin the behaviour so the placement code (world - flooredCamera through Xaero's pose) stays consistent.
+ * Checks our copy of Xaero's GuiMap math. The formulas were read from the decompiled WM 1.45 GuiMap.render and are
+ * unchanged in WM 1.46.1 for 26.2 (GuiMap.extractRenderState); these tests pin the behaviour so the placement code
+ * (world - flooredCamera through Xaero's pose) stays consistent.
  */
 class XaeroViewTest {
     private static final double EPS = 1e-9;

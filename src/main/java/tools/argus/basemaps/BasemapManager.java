@@ -1,6 +1,6 @@
 package tools.argus.basemaps;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -455,8 +455,8 @@ public final class BasemapManager {
             c.drain();
             c.upload(UPLOADS_PER_PASS, frame, frame - 2);
 
-            MinecraftClient mc = MinecraftClient.getInstance();
-            int fbWidth = mc.getWindow().getFramebufferWidth(), fbHeight = mc.getWindow().getFramebufferHeight();
+            Minecraft mc = Minecraft.getInstance();
+            int fbWidth = mc.getWindow().getWidth(), fbHeight = mc.getWindow().getHeight();
             double fboScale = XaeroView.fboScale(scale);
             int flooredX = XaeroView.flooredCamera(cameraX, fboScale);
             int flooredZ = XaeroView.flooredCamera(cameraZ, fboScale);
@@ -471,7 +471,7 @@ public final class BasemapManager {
                 if (!ensureReady(e)) continue;
                 collectQuads(e, c, now, scale, left, top, right, bottom, flooredX, flooredZ, quads);
             }
-            BasemapRenderer.drawQuads(pose, quads);
+            BasemapRenderer.drawQuads(pass, pose, quads);
             c.housekeeping();
         } catch (Throwable t) {
             // never take Xaero's map screen down with us; log at most every 10 s
