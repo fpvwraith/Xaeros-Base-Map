@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "tools.argus.basemaps.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GuiMapMixin",
+    "BranchTextureRendererMixin",
+    "BranchLeveledRegionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
