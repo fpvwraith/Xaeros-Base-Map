@@ -48,7 +48,7 @@ public final class BasemapsScreen extends Screen {
     private record Line(String text, int color) { }
 
     public BasemapsScreen(Screen parent) {
-        super(Text.literal("Basemaps"));
+        super(Text.literal("Xaero's Base Map"));
         this.parent = parent;
     }
 

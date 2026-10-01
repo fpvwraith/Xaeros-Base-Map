@@ -25,7 +25,7 @@ public final class PauseMenuButton {
     public static void register() {
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (!(screen instanceof GameMenuScreen menu) || !menu.shouldShowMenu()) return;
-            ButtonWidget button = ButtonWidget.builder(Text.literal("Basemaps"), b -> client.setScreen(new BasemapsScreen(screen)))
+            ButtonWidget button = ButtonWidget.builder(Text.literal("Base Map"), b -> client.setScreen(new BasemapsScreen(screen)))
                 .dimensions(0, 0, WIDTH, HEIGHT)
                 .build();
             place(screen, button);

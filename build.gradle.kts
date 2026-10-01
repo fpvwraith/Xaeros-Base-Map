@@ -3,7 +3,7 @@ plugins {
 }
 
 base {
-    archivesName = "basemaps"
+    archivesName = "xaeros-base-map"
     version = libs.versions.mod.version.get()
     group = "tools.argus.basemaps"
 }

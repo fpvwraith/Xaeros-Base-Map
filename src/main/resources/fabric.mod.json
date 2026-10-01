@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "id": "basemaps",
   "version": "${version}",
-  "name": "Basemaps",
+  "name": "Xaero's Base Map",
   "description": "Overlay your own images (PNG/JPG) on Xaero's World Map at world coordinates, under or over the explored map. Images live in the 'basemaps' folder of the game directory. No network access.",
   "authors": [
     "Wraith_k25"
   ],
-  "contact": { "sources": "https://github.com/fpvwraith/Basemaps", "issues": "https://github.com/fpvwraith/Basemaps/issues" },
+  "contact": { "sources": "https://github.com/fpvwraith/Xaeros-Base-Map", "issues": "https://github.com/fpvwraith/Xaeros-Base-Map/issues" },
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
